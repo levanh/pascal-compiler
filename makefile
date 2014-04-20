@@ -25,9 +25,10 @@ parse.tab.c parse.tab.h: parse.y sym_table.o
 	@echo "> generated parse.tab.h"
 
 scan.o: scan.c
-	$(CC) -o $@ -c $^ -lfl
+	$(CC) -o $@ -c $^
 	@echo "> built $@"
 
+# The -i flag is essential for a generating case-insensitive scanner
 scan.c: scan.l parse.tab.h
 	$(LEX) -o $@ -i $^
 	@echo "> generated $@"

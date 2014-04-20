@@ -8,7 +8,6 @@ int comment_line;
 
 DIGIT					[0-9]
 LETTER        [a-zA-Z]
-ID						(LETTER|_)(LETTER|DIGIT|_)*
 %x COMMENT
 
 %option noyywrap
@@ -25,46 +24,54 @@ ID						(LETTER|_)(LETTER|DIGIT|_)*
 						return EOF;}
 }
 
-{DIGIT}+ {					yylval = atoi( yytext );
-										return(NUMBER); }
+
+
+
+"PROGRAM" 										return (PROG);
+"PROCEDURE" 									return (PROC);
+"FUNCTION" 										return (_FUNC);
+"BEGIN" 											return (_BEGIN);
+"END" 												return (END);
+
+"VAR" 												return (VAR);
+"REAL"												return (REAL);
+"INTEGER" 										return (INT);
+"BOOLEAN" 										return (BOOL);
+
+":="			 										return (ASSIGN);
+"DIV" 												return (DIV);
+"MOD" 												return (MOD);
+"LEQ"													return (LEQ);
+"GEQ"													return (GEQ);
+"NEQ"													return (NEQ);
+
+"IF"													return (IF);
+"THEN"												return (THEN);
+"ELSE"												return (ELSE);
+"DO"													return (DO);
+
+"READLN"											return (READLN);
+"WRITELN"											return (WRITELN);
+
+
+"(" 													return (LBRACE);
+")" 													return (RBRACE);
+","														return (COMMA);
+":"														return (COLON);
+";"														return (SEMIC);
+"."														return (DOT);
 
 
 
 
-"PROGRAM" 					return (PROG);
-"PROCEDURE" 				return (PROC);
-"FUNCTION" 					return (_FUNC);
-"BEGIN" 						return (_BEGIN);
-"END" 							return (END);
+{DIGIT}+  									  return(NUMBER);
 
-"VAR" 							return (VAR);
-"INTEGER" 					return (INT);
-"BOOLEAN" 					return (BOOL);
-":="			 					return (ASSIGN);
+{LETTER}({DIGIT}|{LETTER})*	  return(IDENTIFIER);
 
-"DIV" 							return (DIV);
-"MOD" 							return (MOD);
-"LEQ"								return (LEQ);
-"GEQ"								return (GEQ);
-"NEQ"								return (NEQ);
+[ \t]*												/* Ignore white space */
 
-"IF"								return (IF);
-"THEN"							return (THEN);
-"ELSE"							return (ELSE);
-"DO"								return (DO);
-
-"READLN"						return (READLN);
-"WRITELN"						return (WRITELN);
-
-"LBRACE" 						return (LBRACE);
-"RBRACE" 						return (RBRACE);
-"COMMA"							return (COMMA);
-"COLON"							return (COLON);
-"SEMI"							return (SEMI);
-
-
-
-
-[ \n]+ 							/* Eat up white space */
-. 									return(yytext[0]);
-%%
+. 														return(yytext[0]); /* Match all single otherwise unmatched characters, (mainly operators) */
+%% /***** C CODE SECTION *****/
+int yyerror(char *message) {
+  printf("Error: %s (l: %d).\n", message, yylineno);
+}

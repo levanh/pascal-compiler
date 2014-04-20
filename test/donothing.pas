@@ -1,0 +1,3 @@
+PROGRAM doNothing;
+BEGIN
+END.

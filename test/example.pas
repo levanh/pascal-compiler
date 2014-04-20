@@ -19,5 +19,5 @@ VAR x:INTEGER;
 BEGIN
 	READLN(x);
 	WRITELN(f(x));
-END
+END.
 { This comment should really be closed
