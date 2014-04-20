@@ -6,7 +6,7 @@ LEX = flex
 CC = gcc
 # Define the parser generator to use
 YACC = bison 
-YFLAGS = -d
+YFLAGS = -d -v
 
 # Target entries
 all: pascal_compiler
@@ -28,7 +28,7 @@ scan.o: scan.c
 	$(CC) -o $@ -c $^
 	@echo "> built $@"
 
-# The -i flag is essential for a generating case-insensitive scanner
+# The -i flag is mandatory for a generating case-insensitive scanner
 scan.c: scan.l parse.tab.h
 	$(LEX) -o $@ -i $^
 	@echo "> generated $@"
@@ -38,5 +38,6 @@ sym_table.o: sym_table.c sym_table.h
 	@echo "> built $@"
 
 clean:
-	-rm -f *~ *.o scan.c *.tab.* *.output pascal_compiler
+	rm -f *~ *.o *.output
+	rm -f scan.c *.tab.* pascal_compiler
 	@echo "> cleaned up"

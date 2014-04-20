@@ -1,17 +1,14 @@
 PROGRAM prog;
 
 { function f }
-// This functions computes the sum of all even numbers from 0 to x
 FUNCTION F(x:INTEGER):INTEGER;
+// This functions computes the sum of all even numbers from 0 to x
 VAR i:INTEGER;
 BEGIN
 	i := 0;
 	f := 0;
 	WHILE i < x DO
-	BEGIN
-		IF i MOD 2 = 0 THEN
-			f := f + i;
-	END;
+		IF i MOD 2 = 0 THEN f := 0;
 END;
 
 { main program }
