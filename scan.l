@@ -1,79 +1,85 @@
-/***** DEFINITION SECTION *****/
 %{
 #include <stdio.h>
-#include "parse.tab.h";
-#include "sym_table.h"
+#include "parse.tab.h"
 int comment_line;
-int line = 1;
+int line_no = 1;
+extern int errors_count;
 %}
 
 DIGIT          [0-9]
-LETTER        [a-zA-Z]
+LETTER         [a-zA-Z]
 %x COMMENT
 
+%option case-insensitive
 %option noyywrap
-%% /***** RULES SECTION *****/
-"//"[^\n]* /* Eat up one-line // comments */
-"{" { /* Match { comments }, possibly spanning over several lines */
-  comment_line = yylineno;
+
+%%
+
+"//"[^\n]*
+"{" {
+  comment_line = line_no;
   BEGIN(COMMENT);
 }
 <COMMENT>{
   "}" { BEGIN(INITIAL); }
-  <<EOF>> { yyerror("Unended comment!", comment_line);
-            return EOF;}
+  <<EOF>> { yyerror("Unended comment!");
+            return EOF; }
 	.
-}
+}															
 
+"PROGRAM"                     { yylval.string = strdup(yytext); return (PROGRAM); }
+"PROCEDURE"                   { yylval.string = strdup(yytext); return (PROCEDURE); }
+"FUNCTION"                    { yylval.string = strdup(yytext); return (_FUNCTION); }
+"BEGIN"                       { yylval.string = strdup(yytext); return (_BEGIN); }
+"END"                         { yylval.string = strdup(yytext); return (END); }
 
+"("                           { yylval.string = strdup(yytext); return (LBRACE); }
+")"                           { yylval.string = strdup(yytext); return (RBRACE); }
 
+"VAR"                         { yylval.string = strdup(yytext); return (VAR); }
+"REAL"                        { yylval.string = strdup(yytext); return (REAL); }
+"INTEGER"                     { yylval.string = strdup(yytext); return (INT); }
+"BOOLEAN"                     { yylval.string = strdup(yytext); return (BOOL); }
 
-"PROGRAM"                     return (PROGRAM);
-"PROCEDURE"                   return (PROCEDURE);
-"FUNCTION"                    return (_FUNCTION);
-"BEGIN"                       return (_BEGIN);
-"END"                         return (END);
+"IF"                          { yylval.string = strdup(yytext); return (IF); }
+"NOT"                         { yylval.string = strdup(yytext); return (NOT); }
+"THEN"                        { yylval.string = strdup(yytext); return (THEN); }
+"ELSE"                        { yylval.string = strdup(yytext); return (ELSE); }
+"WHILE"                       { yylval.string = strdup(yytext); return (WHILE); }
+"DO"                          { yylval.string = strdup(yytext); return (DO); }
 
-"VAR"                         return (VAR);
-"REAL"                        return (REAL);
-"INTEGER"                     return (INT);
-"BOOLEAN"                     return (BOOL);
+"READLN"                      { yylval.string = strdup(yytext); return (READLN); }
+"WRITELN"                     { yylval.string = strdup(yytext); return (WRITELN); }
 
-":="                          return (ASSIGN);
-"MOD"                         return (MOD);
-"LEQ"                         return (LEQ);
-"GEQ"                         return (GEQ);
-"NEQ"                         return (NEQ);
+":="                          { yylval.string = strdup(yytext); return (ASSIGN); }
+"+"                           { yylval.string = strdup(yytext); return (PLUS); }
+"-"                           { yylval.string = strdup(yytext); return (MINUS); }
+"/"                           { yylval.string = strdup(yytext); return (DIV); }
+"*"                           { yylval.string = strdup(yytext); return (TIMES); }
+"MOD"                         { yylval.string = strdup(yytext); return (MOD); }
 
-"IF"                          return (IF);
-"NOT"                         return (NOT);
-"THEN"                        return (THEN);
-"ELSE"                        return (ELSE);
-"WHILE"                       return (WHILE);
-"DO"                          return (DO);
+"<"                           { yylval.string = strdup(yytext); return (LT); }
+">"                           { yylval.string = strdup(yytext); return (GT); }
+"="              	            { yylval.string = strdup(yytext); return (EQ); }
+"<="                          { yylval.string = strdup(yytext); return (LEQ); }
+">="                          { yylval.string = strdup(yytext); return (GEQ); }
+"<>"                          { yylval.string = strdup(yytext); return (NEQ); }
 
-"READLN"                      return (READLN);
-"WRITELN"                     return (WRITELN);
+","                           { yylval.string = strdup(yytext); return (COMMA); }
+":"                           { yylval.string = strdup(yytext); return (COLON); }
+";"                           { yylval.string = strdup(yytext); return (SEMIC); }
+"."                           { yylval.string = strdup(yytext); return (DOT); }
 
-"("                           return (LBRACE);
-")"                           return (RBRACE);
+{DIGIT}+											{ yylval.string = strdup(yytext); return(INT_NBR); }
+({DIGIT}+"."{DIGIT}+)					{ yylval.string = strdup(yytext); return(FLOAT_NBR); }
+{LETTER}({DIGIT}|{LETTER})*   { yylval.string = strdup(yytext); return(IDENTIFIER); }
 
-","                           return (COMMA);
-":"                           return (COLON);
-";"                           return (SEMIC);
-"."                           return (DOT);
+[ \t]*                        
+\n 														{ line_no++; }
+.                             { yyerror("Unrecognized input"); }
 
+%%
 
-
-
-{DIGIT}+                      return(NUMBER);
-
-{LETTER}({DIGIT}|{LETTER})*   return(IDENTIFIER);
-
-[ \t]*                        /* Ignore white space */
-\n 														{ printf("l%d ", line); line++; }
-.                             return(yytext[0]); /* Match all single otherwise unmatched characters, (mainly operators) */
-%% /***** C CODE SECTION *****/
 int yyerror(char *message) {
-  printf("\nError: %s (l: %d).\n", message, line);
+  printf("\nError: %s (l: %d).\n", message, line_no);
 }

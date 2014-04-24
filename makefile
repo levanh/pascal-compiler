@@ -4,6 +4,7 @@
 LEX = flex
 # Define the C compiler to use
 CC = gcc
+CFLAGS = -std=c99
 # Define the parser generator to use
 YACC = bison 
 YFLAGS = -d -v
@@ -16,28 +17,22 @@ pascal_compiler: parse.o scan.o sym_table.o
 	@echo "> built $@ executable"
 
 parse.o: parse.tab.c parse.tab.h
-	$(CC) -o $@ -c parse.tab.c
-	@echo "> built $@"
+	$(CC) $(CFLAGS) -o $@ -c parse.tab.c
 
 parse.tab.c parse.tab.h: parse.y sym_table.o
-	$(YACC)$(YFLAGS) parse.y
-	@echo "> generated parse.tab.c"
-	@echo "> generated parse.tab.h"
+	$(YACC) $(YFLAGS) parse.y
 
 scan.o: scan.c
 	$(CC) -o $@ -c $^
-	@echo "> built $@"
 
-# The -i flag is mandatory for a generating case-insensitive scanner
 scan.c: scan.l parse.tab.h
-	$(LEX) -o $@ -i $^
-	@echo "> generated $@"
+	$(LEX) -o $@ $^
 
 sym_table.o: sym_table.c sym_table.h
-	$(CC) -o $@ -c sym_table.c
-	@echo "> built $@"
+	$(CC) $(CFLAGS) -o $@ -c sym_table.c
 
 clean:
 	rm -f *~ *.o *.output
-	rm -f scan.c *.tab.* pascal_compiler
+	rm -f scan.c *.tab.* output.c pascal_compiler
+	rm -f test/*.c
 	@echo "> cleaned up"

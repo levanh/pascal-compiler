@@ -14,8 +14,8 @@ Running
 + See makefile for how to compile and clean source files
 + Once you have the executable, you can run it with one of the test Pascal files as such:
 
-> ./pascal\_compiler < test/program\_name.pas
+> ./pascal\_compiler test/program\_name.pas
 
 Issues / TODO
 -------------
-+ Fix Shift/Reduce Conflicts in parser
++ Semantic analysis
